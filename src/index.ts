@@ -12,6 +12,7 @@ import { ShortCreator } from "./short-creator/ShortCreator";
 import { logger } from "./logger";
 import { Server } from "./server/server";
 import { MusicManager } from "./short-creator/music";
+import cors from "cors"; // ✅ أضف هذا في الأعلى مع الاستيرادات الأخرى
 
 async function main() {
   const config = new Config();
@@ -83,7 +84,7 @@ async function main() {
 
   logger.debug("initializing the server");
   const server = new Server(config, shortCreator);
-  import cors from "cors"; // ✅ أضف هذا في الأعلى مع الاستيرادات الأخرى
+  
 
 const app = server.start();
 
@@ -96,4 +97,5 @@ app.use(cors());
 main().catch((error: unknown) => {
   logger.error(error, "Error starting server");
 });
+
 
