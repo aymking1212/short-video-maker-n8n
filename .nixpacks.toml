@@ -1,0 +1,8 @@
+[phases.setup]
+nixPkgs = ["nodejs", "pnpm"]
+
+[phases.install]
+cmds = ["pnpm install"]
+
+[start]
+cmd = "pnpm start"  # ← عدّل حسب الأمر الفعلي لتشغيل مشروعك
