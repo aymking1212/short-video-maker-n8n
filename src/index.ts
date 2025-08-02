@@ -83,7 +83,12 @@ async function main() {
 
   logger.debug("initializing the server");
   const server = new Server(config, shortCreator);
-  const app = server.start();
+  import cors from "cors"; // ✅ أضف هذا في الأعلى مع الاستيرادات الأخرى
+
+const app = server.start();
+
+// ✅ تمكين CORS للسماح بالطلبات من n8n أو أي واجهة أخرى
+app.use(cors());
 
   // todo add shutdown handler
 }
@@ -91,3 +96,4 @@ async function main() {
 main().catch((error: unknown) => {
   logger.error(error, "Error starting server");
 });
+
