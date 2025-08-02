@@ -59,6 +59,9 @@ importers:
       content-type:
         specifier: ^1.0.5
         version: 1.0.5
+      cors:
+        specifier: ^2.8.5
+        version: 2.8.5
       cuid:
         specifier: ^3.0.0
         version: 3.0.0
@@ -108,6 +111,9 @@ importers:
       '@types/content-type':
         specifier: ^1.1.8
         version: 1.1.8
+      '@types/cors':
+        specifier: ^2.8.17
+        version: 2.8.19
       '@types/express':
         specifier: ^4.17.21
         version: 4.17.21
@@ -1158,6 +1164,9 @@ packages:
 
   '@types/content-type@1.1.8':
     resolution: {integrity: sha512-1tBhmVUeso3+ahfyaKluXe38p+94lovUZdoVfQ3OnJo9uJC42JT7CBoN3k9HYhAae+GwiBYmHu+N9FZhOG+2Pg==}
+
+  '@types/cors@2.8.19':
+    resolution: {integrity: sha512-mFNylyeyqN93lfe/9CSxOGREz8cpzAhH+E93xJ4xWQf62V8sQ/24reV2nyzUWM6H6Xji+GGHpkbLe7pVoUEskg==}
 
   '@types/eslint-scope@3.7.7':
     resolution: {integrity: sha512-MzMFlSLBqNF2gcHWO0G1vP/YQyfvrxZ0bF+u7mzUdZ1/xK4A4sru+nraZz5i3iEIk1l1uyicaDVTB4QbbEkAYg==}
@@ -4529,6 +4538,10 @@ snapshots:
       '@types/node': 22.14.0
 
   '@types/content-type@1.1.8': {}
+
+  '@types/cors@2.8.19':
+    dependencies:
+      '@types/node': 22.14.0
 
   '@types/eslint-scope@3.7.7':
     dependencies:
