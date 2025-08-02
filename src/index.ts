@@ -2,7 +2,7 @@
 import path from "path";
 import fs from "fs-extra";
 import cors from "cors";
-import express from "express"; // ✅ نستخدم Express مباشرة
+import express from "express";
 
 import { Kokoro } from "./short-creator/libraries/Kokoro";
 import { Remotion } from "./short-creator/libraries/Remotion";
@@ -13,6 +13,7 @@ import { Config } from "./config";
 import { ShortCreator } from "./short-creator/ShortCreator";
 import { logger } from "./logger";
 import { MusicManager } from "./short-creator/music";
+import { Server as AppServer } from "./server/server"; // ✅ إعادة تسمية Server إلى AppServer لتفادي تعارض الأسماء
 
 async function main() {
   const config = new Config();
@@ -50,7 +51,7 @@ async function main() {
     whisper,
     ffmpeg,
     pexelsApi,
-    musicManager,
+    musicManager
   );
 
   if (!config.runningInDocker) {
@@ -86,7 +87,7 @@ async function main() {
   app.use(cors());
 
   // ✅ تفعيل التطبيق داخل السيرفر
-  const server = new Server(config, shortCreator, app);
+  const server = new AppServer(config, shortCreator, app);
   server.start();
 
   // todo: add shutdown handler
