@@ -1,6 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import path from "path";
 import fs from "fs-extra";
+import cors from "cors";
+import express from "express"; // ✅ نستخدم Express مباشرة
 
 import { Kokoro } from "./short-creator/libraries/Kokoro";
 import { Remotion } from "./short-creator/libraries/Remotion";
@@ -10,9 +12,7 @@ import { PexelsAPI } from "./short-creator/libraries/Pexels";
 import { Config } from "./config";
 import { ShortCreator } from "./short-creator/ShortCreator";
 import { logger } from "./logger";
-import { Server } from "./server/server";
 import { MusicManager } from "./short-creator/music";
-import cors from "cors"; // ✅ أضف هذا في الأعلى مع الاستيرادات الأخرى
 
 async function main() {
   const config = new Config();
@@ -54,13 +54,10 @@ async function main() {
   );
 
   if (!config.runningInDocker) {
-    // the project is running with npm - we need to check if the installation is correct
     if (fs.existsSync(config.installationSuccessfulPath)) {
       logger.info("the installation is successful - starting the server");
     } else {
-      logger.info(
-        "testing if the installation was successful - this may take a while...",
-      );
+      logger.info("testing if the installation was successful - this may take a while...");
       try {
         const audioBuffer = (await kokoro.generate("hi", "af_heart")).audio;
         await ffmpeg.createMp3DataUri(audioBuffer);
@@ -75,27 +72,26 @@ async function main() {
       } catch (error: unknown) {
         logger.fatal(
           error,
-          "The environment is not set up correctly - please follow the instructions in the README.md file https://github.com/gyoridavid/short-video-maker",
+          "The environment is not set up correctly - please follow the instructions in the README.md file https://github.com/gyoridavid/short-video-maker"
         );
         process.exit(1);
       }
     }
   }
 
-  logger.debug("initializing the server");
-  const server = new Server(config, shortCreator);
-  
+  // ✅ إنشاء تطبيق Express يدويًا
+  const app = express();
 
-const app = server.start();
+  // ✅ تمكين CORS
+  app.use(cors());
 
-// ✅ تمكين CORS للسماح بالطلبات من n8n أو أي واجهة أخرى
-app.use(cors());
+  // ✅ تفعيل التطبيق داخل السيرفر
+  const server = new Server(config, shortCreator, app);
+  server.start();
 
-  // todo add shutdown handler
+  // todo: add shutdown handler
 }
 
 main().catch((error: unknown) => {
   logger.error(error, "Error starting server");
 });
-
-
