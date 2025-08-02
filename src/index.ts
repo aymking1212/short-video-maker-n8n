@@ -13,7 +13,6 @@ import { Config } from "./config";
 import { ShortCreator } from "./short-creator/ShortCreator";
 import { logger } from "./logger";
 import { MusicManager } from "./short-creator/music";
-import { Server as AppServer } from "./server/server"; // ✅ إعادة تسمية Server إلى AppServer لتفادي تعارض الأسماء
 
 async function main() {
   const config = new Config();
@@ -86,9 +85,16 @@ async function main() {
   // ✅ تمكين CORS
   app.use(cors());
 
-  // ✅ تفعيل التطبيق داخل السيرفر
-  const server = new AppServer(config, shortCreator, app);
-  server.start();
+  // ✅ مسارات بسيطة يمكن تعديلها حسب الحاجة
+  app.get("/", (req, res) => {
+    res.send("Short Video Maker is running 🚀");
+  });
+
+  // ✅ بدء السيرفر
+  const port = config.port ?? 3000;
+  app.listen(port, () => {
+    logger.info(`Server is running on http://localhost:${port}`);
+  });
 
   // todo: add shutdown handler
 }
