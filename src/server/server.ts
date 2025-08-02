@@ -1,5 +1,6 @@
 import http from "http";
 import express from "express";
+import cors from "cors";
 import type {
   Request as ExpressRequest,
   Response as ExpressResponse,
@@ -18,6 +19,11 @@ export class Server {
   constructor(config: Config, shortCreator: ShortCreator) {
     this.config = config;
     this.app = express();
+
+    // ✅ تمكين CORS
+    this.app.use(cors({
+      origin: '*', // يمكنك تخصيصه برابط n8n لو أحببت
+    }));
 
     // add healthcheck endpoint
     this.app.get("/health", (req: ExpressRequest, res: ExpressResponse) => {
