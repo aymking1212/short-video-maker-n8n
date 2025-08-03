@@ -84,16 +84,15 @@ async function main() {
   // ✅ تفعيل CORS
   app.use(cors());
 
-  // ✅ خدمة ملفات الواجهة من dist/ui
-  const uiPath = path.join(__dirname, "ui");
+  // ✅ المسار الصحيح لمجلد الواجهة بعد البناء
+  const uiPath = path.join(__dirname, "..", "dist", "ui");
   app.use(express.static(uiPath));
 
-  // ✅ صفحة البداية
+  // ✅ عرض index.html عند الوصول إلى الجذر أو أي مسار غير موجود
   app.get("/", (req, res) => {
     res.sendFile(path.join(uiPath, "index.html"));
   });
 
-  // ✅ إذا تم الوصول إلى أي مسار غير موجود نعيد المستخدم للواجهة
   app.get("*", (req, res) => {
     res.sendFile(path.join(uiPath, "index.html"));
   });
