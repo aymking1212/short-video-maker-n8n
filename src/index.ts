@@ -3,6 +3,7 @@ import path from "path";
 import fs from "fs-extra";
 import cors from "cors";
 import express from "express";
+import dotenv from "dotenv";
 
 import { Kokoro } from "./short-creator/libraries/Kokoro";
 import { Remotion } from "./short-creator/libraries/Remotion";
@@ -14,35 +15,48 @@ import { ShortCreator } from "./short-creator/ShortCreator";
 import { logger } from "./logger";
 import { MusicManager } from "./short-creator/music";
 
+// تحميل المتغيرات من .env
+dotenv.config();
+
 async function main() {
   const config = new Config();
+
   try {
     config.ensureConfig();
   } catch (err: unknown) {
-    logger.error(err, "Error in config");
+    logger.error(err, "❌ خطأ في تحميل الإعدادات (config). تحقق من ملف .env أو config.json");
     process.exit(1);
+  }
+
+  // تحقق من وجود متغيرات بيئية مهمة
+  const requiredEnv = ["PEXELS_API_KEY"];
+  for (const variable of requiredEnv) {
+    if (!process.env[variable]) {
+      logger.fatal(`❌ المتغير البيئي ${variable} غير موجود. أضفه إلى ملف .env`);
+      process.exit(1);
+    }
   }
 
   const musicManager = new MusicManager(config);
   try {
-    logger.debug("checking music files");
+    logger.debug("✅ التحقق من ملفات الموسيقى");
     musicManager.ensureMusicFilesExist();
   } catch (error: unknown) {
-    logger.error(error, "Missing music files");
+    logger.error(error, "❌ ملفات الموسيقى غير موجودة");
     process.exit(1);
   }
 
-  logger.debug("initializing remotion");
+  logger.debug("🚀 بدء تهيئة Remotion");
   const remotion = await Remotion.init(config);
-  logger.debug("initializing kokoro");
+  logger.debug("🚀 بدء تهيئة Kokoro");
   const kokoro = await Kokoro.init(config.kokoroModelPrecision);
-  logger.debug("initializing whisper");
+  logger.debug("🚀 بدء تهيئة Whisper");
   const whisper = await Whisper.init(config);
-  logger.debug("initializing ffmpeg");
+  logger.debug("🚀 بدء تهيئة FFMpeg");
   const ffmpeg = await FFMpeg.init();
   const pexelsApi = new PexelsAPI(config.pexelsApiKey);
 
-  logger.debug("initializing the short creator");
+  logger.debug("🛠️ بدء تهيئة ShortCreator");
   const shortCreator = new ShortCreator(
     config,
     remotion,
@@ -55,9 +69,9 @@ async function main() {
 
   if (!config.runningInDocker) {
     if (fs.existsSync(config.installationSuccessfulPath)) {
-      logger.info("the installation is successful - starting the server");
+      logger.info("✅ التثبيت تم بنجاح - يتم الآن تشغيل الخادم");
     } else {
-      logger.info("testing if the installation was successful - this may take a while...");
+      logger.info("🔍 اختبار بيئة التثبيت - قد يستغرق ذلك بعض الوقت...");
       try {
         const audioBuffer = (await kokoro.generate("hi", "af_heart")).audio;
         await ffmpeg.createMp3DataUri(audioBuffer);
@@ -68,11 +82,11 @@ async function main() {
         fs.writeFileSync(config.installationSuccessfulPath, "ok", {
           encoding: "utf-8",
         });
-        logger.info("the installation was successful - starting the server");
+        logger.info("✅ التثبيت تم بنجاح - يتم الآن تشغيل الخادم");
       } catch (error: unknown) {
         logger.fatal(
           error,
-          "The environment is not set up correctly - please follow the instructions in the README.md file https://github.com/gyoridavid/short-video-maker"
+          "❌ البيئة غير مهيئة بشكل صحيح - يرجى مراجعة README.md: https://github.com/gyoridavid/short-video-maker"
         );
         process.exit(1);
       }
@@ -82,7 +96,7 @@ async function main() {
   const app = express();
   app.use(cors());
 
-  // 📌 أهم شيء: مسار الواجهة بعد البناء
+  // 📦 تقديم ملفات الواجهة الأمامية
   const uiPath = path.resolve(__dirname, "ui");
   app.use(express.static(uiPath));
 
@@ -94,12 +108,12 @@ async function main() {
     res.sendFile(path.join(uiPath, "index.html"));
   });
 
-  const port = config.port ?? 3000;
+  const port = config.port ?? parseInt(process.env.PORT || "3000", 10);
   app.listen(port, () => {
-    logger.info(`Server is running on http://localhost:${port}`);
+    logger.info(`🚀 الخادم يعمل على http://localhost:${port}`);
   });
 }
 
 main().catch((error: unknown) => {
-  logger.error(error, "Error starting server");
+  logger.error(error, "❌ خطأ أثناء تشغيل الخادم");
 });
