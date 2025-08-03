@@ -111,10 +111,11 @@ async function main() {
   // استخدام منفذ من Railway إذا توفر، أو 3000 افتراضيًا
   const port = parseInt(process.env.PORT || "3000", 10);
   app.listen(port, () => {
-    logger.info(`🚀 الخادم يعمل على http://localhost:${port}`);
+    logger.info(`🚀 الخادم يعمل على http://0.0.0.0:${port}`);
   });
 }
 
 main().catch((error: unknown) => {
   logger.error(error, "❌ خطأ أثناء تشغيل الخادم");
 });
+
