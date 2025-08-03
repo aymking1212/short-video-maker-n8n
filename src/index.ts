@@ -80,15 +80,12 @@ async function main() {
   }
 
   const app = express();
-
-  // ✅ تفعيل CORS
   app.use(cors());
 
-  // ✅ المسار الصحيح لمجلد الواجهة بعد البناء
-  const uiPath = path.join(__dirname, "..", "dist", "ui");
+  // 📌 أهم شيء: مسار الواجهة بعد البناء
+  const uiPath = path.resolve(__dirname, "ui");
   app.use(express.static(uiPath));
 
-  // ✅ عرض index.html عند الوصول إلى الجذر أو أي مسار غير موجود
   app.get("/", (req, res) => {
     res.sendFile(path.join(uiPath, "index.html"));
   });
@@ -97,7 +94,6 @@ async function main() {
     res.sendFile(path.join(uiPath, "index.html"));
   });
 
-  // ✅ بدء الخادم
   const port = config.port ?? 3000;
   app.listen(port, () => {
     logger.info(`Server is running on http://localhost:${port}`);
