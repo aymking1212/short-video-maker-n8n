@@ -108,7 +108,8 @@ async function main() {
     res.sendFile(path.join(uiPath, "index.html"));
   });
 
-  const port = config.port ?? parseInt(process.env.PORT || "3000", 10);
+  // استخدام منفذ من Railway إذا توفر، أو 3000 افتراضيًا
+  const port = parseInt(process.env.PORT || "3000", 10);
   app.listen(port, () => {
     logger.info(`🚀 الخادم يعمل على http://localhost:${port}`);
   });
