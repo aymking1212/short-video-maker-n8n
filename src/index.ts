@@ -79,24 +79,30 @@ async function main() {
     }
   }
 
-  // ✅ إنشاء تطبيق Express يدويًا
   const app = express();
 
-  // ✅ تمكين CORS
+  // ✅ تفعيل CORS
   app.use(cors());
 
-  // ✅ مسارات بسيطة يمكن تعديلها حسب الحاجة
+  // ✅ خدمة ملفات الواجهة من dist/ui
+  const uiPath = path.join(__dirname, "ui");
+  app.use(express.static(uiPath));
+
+  // ✅ صفحة البداية
   app.get("/", (req, res) => {
-    res.send("Short Video Maker is running 🚀");
+    res.sendFile(path.join(uiPath, "index.html"));
   });
 
-  // ✅ بدء السيرفر
+  // ✅ إذا تم الوصول إلى أي مسار غير موجود نعيد المستخدم للواجهة
+  app.get("*", (req, res) => {
+    res.sendFile(path.join(uiPath, "index.html"));
+  });
+
+  // ✅ بدء الخادم
   const port = config.port ?? 3000;
   app.listen(port, () => {
     logger.info(`Server is running on http://localhost:${port}`);
   });
-
-  // todo: add shutdown handler
 }
 
 main().catch((error: unknown) => {
