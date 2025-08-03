@@ -1,6 +1,4 @@
 import {
-  downloadWhisperModel,
-  installWhisperCpp,
   transcribe,
 } from "@remotion/install-whisper-cpp";
 import path from "path";
@@ -15,35 +13,10 @@ export class Whisper {
   constructor(private config: Config) {}
 
   static async init(config: Config): Promise<Whisper> {
-    if (!config.runningInDocker) {
-      logger.debug("Installing WhisperCpp");
-      await installWhisperCpp({
-        to: config.whisperInstallPath,
-        version: config.whisperVersion,
-        printOutput: true,
-      });
-      logger.debug("WhisperCpp installed");
-      logger.debug("Downloading Whisper model");
-      await downloadWhisperModel({
-        model: config.whisperModel,
-        folder: path.join(config.whisperInstallPath, "models"),
-        printOutput: config.whisperVerbose,
-        onProgress: (downloadedBytes, totalBytes) => {
-          const progress = `${Math.round((downloadedBytes / totalBytes) * 100)}%`;
-          logger.debug(
-            { progress, model: config.whisperModel },
-            "Downloading Whisper model",
-          );
-        },
-      });
-      // todo run the jfk command to check if everything is ok
-      logger.debug("Whisper model downloaded");
-    }
-
+    logger.debug("Skipping Whisper installation on production");
     return new Whisper(config);
   }
 
-  // todo shall we extract it to a Caption class?
   async CreateCaption(audioPath: string): Promise<Caption[]> {
     logger.debug({ audioPath }, "Starting to transcribe audio");
     const { transcription } = await transcribe({
@@ -70,7 +43,6 @@ export class Whisper {
         if (token.text.startsWith("[_TT")) {
           return;
         }
-        // if token starts without space and the previous node didn't have space either, merge them
         if (
           captions.length > 0 &&
           !token.text.startsWith(" ") &&
